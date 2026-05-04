@@ -1,24 +1,26 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. 페이지 스타일 및 설정 (WithMember 스타일)
+# 1. 페이지 스타일 및 설정
 st.set_page_config(page_title="WithMember AI 리뷰 마스터", layout="centered")
 st.markdown("""
     <style>
     .main { background-color: #000000; color: #D4AF37; }
     div.stButton > button:first-child { background-color: #D4AF37; color: black; border: None; }
     </style>
-    """, unsafe_allow_html=True)  # <--- 이 부분이 수정되었습니다!
+    """, unsafe_allow_html=True)
 
 st.title("🏆 AI 블로그 리뷰 마스터")
 
-# 2. API 키 '등록' 확인 로직
+# 2. API 키 등록 확인
 api_key = st.secrets.get("GEMINI_API_KEY") or st.sidebar.text_input("Gemini API Key 등록", type="password")
 
 if api_key:
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        
+        # 🚨 에러 해결 포인트: 가장 호환성이 높은 안정적인 모델(gemini-pro)로 변경했습니다.
+        model = genai.GenerativeModel('gemini-pro')
         
         with st.form("review_form"):
             st.subheader("📝 매장 정보 입력")
@@ -45,7 +47,9 @@ if api_key:
                         사람이 쓴 것처럼 자연스럽게 작성해줘.
                         """
                         response = model.generate_content(prompt)
-                        st.success("리뷰 작성이 완료되었습니다!")
+                        
+                        # 완료 상태를 직관적으로 표시
+                        st.success("리뷰 초안 등록 완료 🟢") 
                         st.markdown("---")
                         st.write(response.text)
                     except Exception as e:
