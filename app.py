@@ -8,18 +8,16 @@ st.markdown("""
     .main { background-color: #000000; color: #D4AF37; }
     div.stButton > button:first-child { background-color: #D4AF37; color: black; border: None; }
     </style>
-    """, unsafe_allow_status_code=True)
+    """, unsafe_allow_html=True)  # <--- 이 부분이 수정되었습니다!
 
 st.title("🏆 AI 블로그 리뷰 마스터")
 
 # 2. API 키 '등록' 확인 로직
-# Secrets에 있으면 자동으로 가져오고, 없으면 사이드바에서 받습니다.
 api_key = st.secrets.get("GEMINI_API_KEY") or st.sidebar.text_input("Gemini API Key 등록", type="password")
 
 if api_key:
     try:
         genai.configure(api_key=api_key)
-        # 'models/'를 붙여서 NotFound 에러를 방지합니다.
         model = genai.GenerativeModel('models/gemini-1.5-flash')
         
         with st.form("review_form"):
@@ -37,7 +35,6 @@ if api_key:
             else:
                 with st.spinner("AI가 따뜻한 목소리로 리뷰를 작성 중입니다..."):
                     try:
-                        # 따뜻하고 자연스러운 톤으로 요청
                         prompt = f"""
                         너는 아주 따뜻하고 친근한 말투를 가진 전문 블로거야. 
                         매장 '{store_name}'에 '{visit_purpose}' 목적으로 다녀온 리뷰를 써줘.
@@ -53,7 +50,6 @@ if api_key:
                         st.write(response.text)
                     except Exception as e:
                         st.error(f"리뷰 생성 중 오류가 발생했습니다: {e}")
-                        st.info("모델 이름을 'gemini-1.5-pro'로 변경해 보거나 API 키를 다시 확인해 주세요.")
 
     except Exception as e:
         st.error(f"시스템 설정 중 오류 발생: {e}")
