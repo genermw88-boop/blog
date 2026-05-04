@@ -66,14 +66,17 @@ if api_key:
                             1. 제목: '{main_keywords}'를 포함하여 눈길을 끄는 제목 1개를 최상단에 제시해.
                             2. 본문: 기계적인 AI 느낌은 완전히 빼고, 20~30대가 직접 다녀온 것처럼 따뜻하고 친근한 말투로 자연스럽게 작성해.
                             3. 구성: 서론-본론-결론의 구조를 갖추고, 가독성을 위해 적절한 이모지를 섞어줘.
+                            4. 제한: 글씨를 굵게 만드는 마크다운 기호(**)는 절대 사용하지 마. 특수기호 없이 깔끔한 텍스트로만 출력해.
                             """
                             response = model.generate_content(prompt)
+                            
+                            # 🚨 추가: AI가 혹시라도 ** 기호를 썼다면 파이썬이 강제로 싹 지워버립니다.
+                            clean_text = response.text.replace("**", "")
                             
                             st.success("리뷰 데이터 등록 완료 🟢")
                             st.markdown("---")
                             
-                            # 🚨 에러 해결의 핵심: 복사할 때 단축키 충돌이 나지 않도록 텍스트 박스 형태로 출력
-                            st.text_area("✨ 완성된 리뷰 (박스 안쪽을 클릭하고 전체 복사하세요)", value=response.text, height=500)
+                            st.text_area("✨ 완성된 리뷰 (박스 안쪽을 클릭하고 전체 복사하세요)", value=clean_text, height=500)
                             
                         except Exception as e:
                             st.error(f"리뷰 등록 중 오류가 발생했습니다: {e}")
