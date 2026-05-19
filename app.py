@@ -40,33 +40,39 @@ if api_key:
             
             with st.form("review_form"):
                 st.subheader("📝 플레이어 정보 등록")
+                store_region = st.text_input("매장 지역", placeholder="예: 대구 달서구 장기동")
                 store_name = st.text_input("매장명", placeholder="예: 동경생고기")
+                place_link = st.text_input("플레이스 링크", placeholder="예: https://map.naver.com/v5/...")
                 main_keywords = st.text_input("메인 키워드 (제목용, 2개 권장)", placeholder="예: 대구 장기동 맛집, 장기동 육회")
                 detail_keywords = st.text_area("상세 키워드 (본문용, 5개 권장)", placeholder="예: 당일 도축, 신선함, 친절한 사장님, 주차 편리, 프라이빗 룸")
                 
                 submitted = st.form_submit_button("리뷰 데이터 등록")
 
             if submitted:
-                if not store_name or not main_keywords or not detail_keywords:
-                    st.warning("매장명, 메인 키워드, 상세 키워드를 모두 등록해 주세요.")
+                if not store_region or not store_name or not place_link or not main_keywords or not detail_keywords:
+                    st.warning("매장 지역, 매장명, 플레이스 링크, 메인/상세 키워드를 모두 등록해 주세요.")
                 else:
                     with st.spinner("자연스러운 말투로 리뷰를 작성 중입니다..."):
                         try:
                             model = genai.GenerativeModel(target_model)
                             prompt = f"""
-                            너는 마케팅 대행사 '위드멤버'의 수석 카피라이터야.
-                            아래 정보를 바탕으로 네이버 블로그 리뷰 초안을 작성해줘.
+                            너는 평소 맛집과 핫플을 즐겨 찾는 20~30대 네이버 블로거야.
+                            아래 정보를 바탕으로 직접 다녀온 것처럼 생생하고 자연스러운 네이버 블로그 리뷰 초안을 작성해줘.
                             
                             [정보]
+                            - 매장 지역: {store_region}
                             - 매장명: {store_name}
+                            - 플레이스 링크: {place_link}
                             - 메인 키워드 (반드시 제목에 포함): {main_keywords}
                             - 상세 키워드 (반드시 본문에 자연스럽게 포함): {detail_keywords}
                             
                             [작성 조건]
-                            1. 제목: '{main_keywords}'를 포함하여 눈길을 끄는 제목 1개를 최상단에 제시해.
-                            2. 본문: 기계적인 AI 느낌은 완전히 빼고, 20~30대가 직접 다녀온 것처럼 따뜻하고 친근한 말투로 자연스럽게 작성해.
+                            1. 제목: '{main_keywords}'를 포함하여 사람들의 눈길을 끄는 제목 1개를 최상단에 제시해.
+                            2. 본문: 기계적인 AI 느낌은 완전히 빼고, 친하고 편안한 말투로 자연스럽게 작성해. 
+                                     글 중간이나 끝부분에 '매장 지역({store_region})'의 위치 정보와 '플레이스 링크({place_link})'를 자연스럽게 소개해줘.
                             3. 구성: 서론-본론-결론의 구조를 갖추고, 가독성을 위해 적절한 이모지를 섞어줘.
                             4. 제한: 글씨를 굵게 만드는 마크다운 기호(**)는 절대 사용하지 마. 특수기호 없이 깔끔한 텍스트로만 출력해.
+                            5. 해시태그: 리뷰가 모두 끝난 맨 마지막 줄에 메인 키워드와 상세 키워드 단어들을 활용해서 '#키워드' 형태로 전부 나열해줘.
                             """
                             response = model.generate_content(prompt)
                             
